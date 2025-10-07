@@ -1,0 +1,10 @@
+@import "tailwindcss";
+/* Custom colors should be added in tailwind.config.js under theme.extend.colors */
+@theme {
+  --color-primary: #141414;
+  --color-secondary: #181818;
+  --color-bermuda: #78dcca;
+  --color-accent: #E50914;      
+  --color-textLight: #FFFFFF;
+  --color-textMuted: #a1a1a1
+}
