@@ -54,7 +54,7 @@ export default function Header() {
       </header>
 
       {/* Spacer for fixed header */}
-      <div className="h-14 md:h-16"></div>
+      <div className="h-15 md:h-17"></div>
     </>
   );
 }

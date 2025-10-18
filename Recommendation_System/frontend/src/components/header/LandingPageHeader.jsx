@@ -16,7 +16,7 @@ export default function LandingPageHeader() {
 
 
           {/* Right Actions */}
-          <div className="flex items-center gap-3 sm:gap-6">
+          <div className="items-center gap-3 sm:gap-6 hidden md:flex">
             <Button/> 
           </div>
         </div>
