@@ -1,7 +1,0 @@
-*.env
-*__pychache
-*.venv
-*python-version
-*pyproject.toml
-*uv.lock
-
