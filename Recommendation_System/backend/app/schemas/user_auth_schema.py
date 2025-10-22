@@ -1,14 +1,15 @@
 from pydantic import BaseModel, Field, EmailStr, field_validator
-from typing import List
+from typing import List,Optional
 from datetime import datetime
 from bson import ObjectId
 class UserSignUp(BaseModel):
     name: str
     email: EmailStr
     password: str
-    genres: List[str] = Field(default=[])
+    genres:Optional[List[str]]=None
+    favorite_actor:Optional['str']=None
+    favorite_director:Optional['str']=None
     signin_date: datetime = Field(default_factory=datetime.utcnow)
-
 
 class UserLogIn(BaseModel):
     email: EmailStr
