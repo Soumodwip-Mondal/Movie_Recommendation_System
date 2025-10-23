@@ -5,9 +5,8 @@ function Footer() {
   return (
     <footer className="w-full bg-gradient-to-b from-black via-gray-900 to-black text-gray-400 py-3 px-4 md:px-12 border-t border-gray-800">
       <div className="max-w-6xl mx-auto">
-        {/* Top Section: Logo + Socials */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-2">
-          <h2 className="text-lg font-semibold text-white">Streamflix</h2>
+          <h2 className="text-lg font-semibold text-white">CinePulse</h2>
           <div className="flex gap-3 text-gray-400">
             <a href="#" className="hover:text-red-600 transition-colors">
               <Youtube size={18} />
@@ -24,7 +23,6 @@ function Footer() {
           </div>
         </div>
 
-        {/* Links Section */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1 mt-3 text-[11px]">
           <a href="#" className="hover:text-white transition">FAQ</a>
           <a href="#" className="hover:text-white transition">Help Center</a>
@@ -36,9 +34,8 @@ function Footer() {
           <a href="#" className="hover:text-white transition">Investor Relations</a>
         </div>
 
-        {/* Bottom Section */}
         <div className="mt-3 border-t border-gray-800 pt-3 text-center text-[11px] text-gray-500">
-          © 2025 Streamflix. All rights reserved.
+          © 2025 CinePulse. All rights reserved.
           <br />
           <span className="text-gray-400">Built with ❤️ by Soumo</span>
         </div>
@@ -46,5 +43,4 @@ function Footer() {
     </footer>
   );
 }
-
-export default Footer;
+export default Footer

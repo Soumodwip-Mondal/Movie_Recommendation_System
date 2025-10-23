@@ -5,8 +5,8 @@ function App() {
 
   return (
     <>
-        {/* <Layout/> */}
-        <LandingPageLayout/>
+        <Layout/>
+        {/* <LandingPageLayout/> */}
     </>
   )
 }
