@@ -1,99 +1,121 @@
-import React, { useState } from 'react';
-import { Check } from 'lucide-react';
+import React, { useState } from "react";
+import { Check } from "lucide-react";
 
-export default function SignUp() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function SignUp({ onClose, onSwitchToLogin }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [genres, setGenres] = useState([]);
-  const [display,setDisplay]=useState('hidden')
+
   const genresList = [
-    'Action', 'Comedy', 'Drama', 'Fantasy',
-    'Mystery', 'Sci-Fi', 'Thriller', 'Adventure'
+    "Action", "Comedy", "Drama", "Fantasy",
+    "Mystery", "Sci-Fi", "Thriller", "Adventure"
   ];
 
   const toggleGenre = (genre) => {
-    setGenres(genres.includes(genre)?genres.filter(g=>g!==genre):[...genres,genre])
+    setGenres((prev) =>
+      prev.includes(genre)
+        ? prev.filter((g) => g !== genre)
+        : [...prev, genre]
+    );
   };
-   
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`Welcome ${name}! Genres: ${genres.join(', ') || 'None selected'}`);
+    alert(`Welcome ${name}! Genres: ${genres.join(", ") || "None selected"}`);
   };
 
   return (
-    <div className={`absolute z-50 min-h-screen bg-gray-800/85 w-full ${display} items-center justify-center p-4`}>
-      <div className="w-full max-w-sm">
-        <div className="bg-gray-900/60 backdrop-blur-2xl rounded-2xl border border-white/30 p-6">
-          {/* Header */}
-          <h1 className="text-2xl font-bold text-white mb-1">Create Account</h1>
-          <p className="text-gray-400 text-sm mb-6">Join us & pick your genres</p>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-sm bg-gray-900/70 backdrop-blur-2xl rounded-2xl border border-white/20 p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-white text-lg hover:text-red-400"
+        >
+          ×
+        </button>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Full Name"
-              className="w-full px-3 py-2 bg-white/5 border border-white/30 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
-              required
-            />
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              className="w-full px-3 py-2 bg-white/5 border border-white/30 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
-              required
-            />
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              className="w-full px-3 py-2 bg-white/5 border border-white/30 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
-              required
-            />
-            <div>
-              <label className="text-sm text-gray-300 mb-2 block">Genres</label>
-              <div className="grid grid-cols-2 gap-2">
-                {genresList.map((genre) => (
-                  <label
-                    key={genre}
-                    className="flex items-center p-1.5 bg-white/5 border border-white/30 rounded-md cursor-pointer hover:bg-white/10"
+        <h1 className="text-2xl font-bold text-white mb-1">Create Account</h1>
+        <p className="text-gray-400 text-sm mb-6">Join us & pick your genres</p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Full Name"
+            className="w-full px-3 py-2 bg-white/5 border border-white/30 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+            required
+          />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            className="w-full px-3 py-2 bg-white/5 border border-white/30 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+            required
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            className="w-full px-3 py-2 bg-white/5 border border-white/30 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+            required
+          />
+
+          {/* Genre selection */}
+          <div>
+            <label className="text-sm text-gray-300 mb-2 block">Genres</label>
+            <div className="grid grid-cols-2 gap-2">
+              {genresList.map((genre) => (
+                <label
+                  key={genre}
+                  className="flex items-center p-1.5 bg-white/5 border border-white/30 rounded-md cursor-pointer hover:bg-white/10"
+                >
+                  <input
+                    type="checkbox"
+                    checked={genres.includes(genre)}
+                    onChange={() => toggleGenre(genre)}
+                    className="hidden"
+                  />
+                  <div
+                    className={`w-4 h-4 border border-white/30 rounded flex items-center justify-center ${
+                      genres.includes(genre) ? "bg-blue-500" : ""
+                    }`}
                   >
-                    <input
-                      type="checkbox"
-                      checked={genres.includes(genre)}
-                      onChange={() => toggleGenre(genre)}
-                      className="hidden"
-                    />
-                    <div
-                      className={`w-4 h-4 border border-white/30 rounded flex items-center justify-center ${genres.includes(genre) ? 'bg-blue-500' : ''
-                        }`}
-                    >
-                      {genres.includes(genre) && <Check size={12} className="text-white" />}
-                    </div>
-                    <span className="ml-2 text-white text-sm">{genre}</span>
-                  </label>
-                ))}
-              </div>
+                    {genres.includes(genre) && <Check size={12} className="text-white" />}
+                  </div>
+                  <span className="ml-2 text-white text-sm">{genre}</span>
+                </label>
+              ))}
             </div>
+          </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              className="w-full mt-4 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-md transition"
-            >
-              Sign Up
-            </button>
-          </form>
+          <button
+            type="submit"
+            className="w-full mt-4 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-md transition"
+          >
+            Sign Up
+          </button>
+        </form>
 
-          <p className="text-center text-gray-400 text-sm mt-4">
-            Already have an account?{' '}
-            <span className="text-blue-400 cursor-pointer">Sign in</span>
-          </p>
-        </div>
+        <p className="text-center text-gray-400 text-sm mt-4">
+          Already have an account?{" "}
+          <span
+            className="text-blue-400 cursor-pointer hover:underline"
+            onClick={onSwitchToLogin}
+          >
+            Sign in
+          </span>
+        </p>
       </div>
     </div>
   );

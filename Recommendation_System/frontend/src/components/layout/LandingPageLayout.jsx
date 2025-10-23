@@ -7,11 +7,7 @@ import LogIn from '../auth/LogIn'
 function LandingPageLayout() {
   return (
         <>
-          <LogIn/>
-          {/* <SignUp/>*/}
-         <LandingPageHeader/>
          <LandingPage/>
-         <Footer/>
         </>     
   )
 }
