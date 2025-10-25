@@ -25,10 +25,9 @@ function App() {
     <>
         <RouterProvider router={router}/>
         {/* <Layout/> */}
-        {/* // <LandingPageLayout/> */}
+        {/* <LandingPageLayout/> */}
     </>
   )
 }
-import { Home } from 'lucide-react'
 
 export default App
