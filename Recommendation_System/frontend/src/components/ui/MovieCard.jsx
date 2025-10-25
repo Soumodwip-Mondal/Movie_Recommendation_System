@@ -1,15 +1,13 @@
-import React, { useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-
-import { Heart, Play } from 'lucide-react'
+import React, { useState } from 'react';
+import { Heart, Play } from 'lucide-react';
 
 function MovieCard({ title, imageUrl, rating }) {
-  const [isFavorited, setIsFavorited] = useState(false)
+  const [isFavorited, setIsFavorited] = useState(false);
 
   return (
-    <div className="group w-40 sm:w-44 md:w-48 h-60 sm:h-64 md:h-72 bg-gray-900 rounded-xl shadow-2xl border border-white/15 overflow-hidden transform transition-all duration-300 hover:shadow-2xl flex flex-col flex-shrink-0">
+    <div className="group w-full h-60 sm:h-64 md:h-72 bg-gray-900 rounded-xl shadow-2xl border border-white/15 overflow-hidden transform transition-all duration-300 hover:shadow-2xl flex flex-col">
       {/* Image Section */}
-      <div className="relative h-32 sm:h-36 md:h-48 overflow-hidden bg-gray-800 ">
+      <div className="relative h-32 sm:h-36 md:h-48 overflow-hidden bg-gray-800">
         <img
           src={imageUrl || "https://via.placeholder.com/224x192?text=No+Image"}
           alt={title}
@@ -37,7 +35,9 @@ function MovieCard({ title, imageUrl, rating }) {
 
       {/* Info Section */}
       <div className="flex-1 p-2 sm:p-3 flex flex-col justify-between bg-gradient-to-b from-gray-800 to-gray-900">
-        <h2 className="text-white font-semibold text-xs sm:text-sm line-clamp-2">{title}</h2>
+        <h2 className="text-white font-semibold text-xs sm:text-sm line-clamp-2">
+          {title}
+        </h2>
         
         {rating && (
           <div className="flex items-center gap-1 text-yellow-400 font-semibold text-xs sm:text-sm">
@@ -47,6 +47,7 @@ function MovieCard({ title, imageUrl, rating }) {
         )}
       </div>
     </div>
-  )
+  );
 }
-export default MovieCard
+
+export default MovieCard;

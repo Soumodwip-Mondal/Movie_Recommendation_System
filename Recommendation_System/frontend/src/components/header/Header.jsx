@@ -1,16 +1,14 @@
 import { Menu, Search, User, X } from "lucide-react";
 import { useState } from "react";
-import SearchBar from "../ui/SearchBar"; // ✅ Import your SearchBar component
-
+import SearchBar from "../ui/SearchBar"; 
+import {Link, NavLink} from 'react-router-dom'
 export default function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showSearch, setShowSearch] = useState(false); // ✅ Control search visibility
-
+  const [showSearch, setShowSearch] = useState(false); 
   const navLinks = [
-    { label: "Home", href: "#" },
-    { label: "Genres", href: "#" },
-    { label: "Top Rated", href: "#" },
-    { label: "My List", href: "#" },
+    { label: "Home", href: "/" },
+    { label: "Genres", href: "/genres" },
+    { label: "Top Rated", href: "/top-rated" },
+    { label: "My List", href: "/mylist" },
   ];
 
   return (
@@ -29,14 +27,9 @@ export default function Header() {
           {/* 🌐 Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8 text-gray-300 flex-1 mx-12">
             {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-sm font-medium hover:text-white transition-colors duration-200 relative group"
-              >
+              <Link to={link.href} className="text-sm font-medium hover:text-white transition-colors duration-200 relative group">
                 {link.label}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 group-hover:w-full transition-all duration-300"></span>
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -61,7 +54,7 @@ export default function Header() {
             {/* 👤 User Profile */}
             <button className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 text-gray-300 hover:text-white">
               <User size={20} />
-              <span className="text-sm font-medium">My Space</span>
+              <Link to='/profile' className="text-sm font-medium">My Space</Link>
             </button>
           </div>
         </div>
@@ -79,7 +72,7 @@ export default function Header() {
       </header>
 
       {/* Spacer for fixed header */}
-      <div className="h-20"></div>
+      <div className="h-16 md:h-20"></div>
     </>
   );
 }
