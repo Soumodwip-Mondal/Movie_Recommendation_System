@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import LandingPageHeader from "../header/LandingPageHeader";
 import Footer from "../footer/Footer";
 import SignUp from "../auth/SignUp";
