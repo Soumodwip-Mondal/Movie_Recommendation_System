@@ -26,11 +26,15 @@ export default function Header() {
 
           {/* 🌐 Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8 text-gray-300 flex-1 mx-12">
-            {navLinks.map((link) => (
-              <Link to={link.href} className="text-sm font-medium hover:text-white transition-colors duration-200 relative group">
-                {link.label}
-              </Link>
-            ))}
+          {navLinks.map((link) => (
+            <Link 
+              key={link.href}  // Add this key prop
+              to={link.href} 
+              className="text-sm font-medium hover:text-white transition-colors duration-200 relative group"
+            >
+              {link.label}
+            </Link>
+          ))}
           </nav>
 
           {/* 🎯 Right Actions */}

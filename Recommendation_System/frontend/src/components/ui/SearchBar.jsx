@@ -1,18 +1,38 @@
 import React, { useState } from 'react'
 import { Search, X } from 'lucide-react'
+import { apiFetch } from '../../lib/api'
 
 function SearchBar({ onSearch }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [isFocused, setIsFocused] = useState(false)
+  const [results, setResults] = useState([])
+  const [searching, setSearching] = useState(false)
 
-  const handleSearch = () => {
-    if (onSearch) {
-      onSearch(searchTerm)
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) return;
+    setSearching(true);
+    try {
+      // Search using top_6 endpoint with movie name
+      const res = await apiFetch(`/api/top_6?name=${encodeURIComponent(searchTerm)}`);
+      const movies = (res?.movies || []).slice(0, 4).map(m => ({
+        id: m.id,
+        title: m.title || m.name || 'Untitled',
+      }));
+      setResults(movies);
+      if (onSearch) {
+        onSearch(searchTerm);
+      }
+    } catch (e) {
+      console.error('Search failed', e);
+      setResults([]);
+    } finally {
+      setSearching(false);
     }
   }
 
   const handleClear = () => {
     setSearchTerm('')
+    setResults([])
   }
 
   const handleKeyPress = (e) => {
@@ -67,28 +87,27 @@ function SearchBar({ onSearch }) {
         </button>
       </div>
 
-      {/* Search Suggestions (optional) */}
-      {isFocused && searchTerm.length > 0 && (
+      {/* Search Results */}
+      {isFocused && results.length > 0 && (
         <div className="mt-3 bg-gray-800 rounded-lg shadow-xl overflow-hidden animate-in fade-in-50 duration-200">
           <div className="p-3 border-b border-gray-700">
-            <p className="text-sm text-gray-400">Popular searches</p>
+            <p className="text-sm text-gray-400">Search Results</p>
           </div>
           <div className="max-h-48 overflow-y-auto">
-            {['Action Movies', 'Thriller', 'Comedy', 'Drama'].map((item, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setSearchTerm(item)
-                  handleSearch()
-                }}
+            {results.map((item) => (
+              <div
+                key={item.id}
                 className="w-full text-left px-4 py-2 hover:bg-gray-700 text-white text-sm transition-colors duration-150 flex items-center gap-2"
               >
                 <Search size={14} className="text-gray-400" />
-                {item}
-              </button>
+                {item.title}
+              </div>
             ))}
           </div>
         </div>
+      )}
+      {searching && (
+        <div className="mt-3 text-center text-gray-400 text-sm">Searching...</div>
       )}
     </div>
   )

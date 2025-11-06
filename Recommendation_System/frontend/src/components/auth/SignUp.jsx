@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { Check } from "lucide-react";
+import { useAuth } from "../../context/authContext";
 
 export default function SignUp({ onClose, onSwitchToLogin }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [genres, setGenres] = useState([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { signup } = useAuth();
 
   const genresList = [
     "Action", "Comedy", "Drama", "Fantasy",
@@ -20,9 +24,29 @@ export default function SignUp({ onClose, onSwitchToLogin }) {
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Welcome ${name}! Genres: ${genres.join(", ") || "None selected"}`);
+    console.log('=== SIGNUP FORM SUBMITTED ===');
+    console.log('Name:', name);
+    console.log('Email:', email);
+    console.log('Password length:', password?.length);
+    console.log('Genres:', genres);
+    
+    setError("");
+    setLoading(true);
+    try {
+      console.log('Calling signup function...');
+      await signup({ name, email, password, genres });
+      console.log('Signup successful! Closing modal...');
+      onClose?.();
+    } catch (err) {
+      console.error('Signup failed:', err);
+      console.error('Error message:', err.message);
+      console.error('Error stack:', err.stack);
+      setError(err.message || "Signup failed. Try a different email.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,6 +70,7 @@ export default function SignUp({ onClose, onSwitchToLogin }) {
         <p className="text-gray-400 text-sm mb-6">Join us & pick your genres</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && <div className="text-red-400 text-sm">{error}</div>}
           <input
             type="text"
             value={name}
@@ -101,9 +126,10 @@ export default function SignUp({ onClose, onSwitchToLogin }) {
 
           <button
             type="submit"
-            className="w-full mt-4 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-md transition"
+            disabled={loading}
+            className="w-full mt-4 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-md transition disabled:opacity-60"
           >
-            Sign Up
+            {loading ? 'Signing up...' : 'Sign Up'}
           </button>
         </form>
 

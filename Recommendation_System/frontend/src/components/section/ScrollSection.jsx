@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import MovieCard from '../ui/MovieCard';
+// Mark motion as used for certain eslint configs that don't detect JSX usage
+void motion;
 
 function ScrollSection({ title, movies }) {
   const scrollRef = useRef(null);
@@ -91,13 +93,14 @@ function ScrollSection({ title, movies }) {
                 title={movie.title}
                 imageUrl={movie.imageUrl}
                 rating={movie.rating}
+                movieId={movie.movieId}
               />
             </motion.div>
           ))}
         </div>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;

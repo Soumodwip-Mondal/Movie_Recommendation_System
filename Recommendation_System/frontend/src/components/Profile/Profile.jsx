@@ -1,13 +1,24 @@
 import React from 'react'
+import { useAuth } from '../../context/authContext'
+import { useNavigate } from 'react-router-dom'
+import { LogOut } from 'lucide-react'
 
 function Profile() {
-  // Mock user data
-  const mockUser = {
-    userName: 'Alex',
-    email: 'alex@example.com',
-    joined: 'January 15, 2023',
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/landing')
+  }
+
+  if (!user) return null
+
+  // Mock stats for now
+  const stats = {
     totalWatched: 45,
     totalSaved: 12,
+    joined: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
     genres: [
       { name: 'Action', watched: 75 },
       { name: 'Thriller', watched: 50 },
@@ -18,8 +29,6 @@ function Profile() {
     ]
   }
 
-  const user = mockUser
-
   return (
     <div className="min-h-screen bg-black text-white px-6 md:px-16 py-10">
       {/* Header Section */}
@@ -28,27 +37,36 @@ function Profile() {
           Welcome Back
         </p>
         <h1 className="text-5xl md:text-6xl font-black mb-2 leading-tight">
-          {user.userName}
+          {user.name}
         </h1>
         <p className="text-gray-400 mb-4">{user.email}</p>
 
         {/* Stats */}
-        <div className="flex flex-wrap gap-6 text-sm text-gray-400">
+        <div className="flex flex-wrap gap-6 text-sm text-gray-400 mb-6">
           <div>
-            <span className="font-semibold text-white">{user.totalWatched}</span> Movies Watched
+            <span className="font-semibold text-white">{stats.totalWatched}</span> Movies Watched
           </div>
           <div>
-            <span className="font-semibold text-white">{user.totalSaved}</span> Movies Saved
+            <span className="font-semibold text-white">{stats.totalSaved}</span> Movies Saved
           </div>
           <div>
-            Joined: <span className="font-semibold text-white">{user.joined}</span>
+            Joined: <span className="font-semibold text-white">{stats.joined}</span>
           </div>
         </div>
+
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200"
+        >
+          <LogOut size={20} />
+          Logout
+        </button>
       </div>
 
       {/* Genre Progress */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {user.genres.map((genre, idx) => (
+        {stats.genres.map((genre, idx) => (
           <div
             key={idx}
             className="bg-gray-900 rounded-lg p-5 shadow-md border border-white/10"

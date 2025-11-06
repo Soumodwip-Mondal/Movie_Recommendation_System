@@ -1,8 +1,28 @@
 import React, { useState } from 'react';
 import { Heart, Play } from 'lucide-react';
+import { useAuth } from '../../context/authContext';
+import { apiFetch } from '../../lib/api';
 
-function MovieCard({ title, imageUrl, rating }) {
+function MovieCard({ title, imageUrl, rating, movieId }) {
   const [isFavorited, setIsFavorited] = useState(false);
+  const { token } = useAuth();
+
+  const handlePlayClick = async () => {
+    if (!token || !movieId) return;
+    try {
+      await apiFetch('/api/user/history/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tmdb_movie_id: movieId }),
+      });
+      console.log('Added to history:', title);
+    } catch (e) {
+      console.error('Failed to add to history', e);
+    }
+  };
 
   return (
     <div className="group w-full h-60 sm:h-64 md:h-72 bg-gray-900 rounded-xl shadow-2xl border border-white/15 overflow-hidden transform transition-all duration-300 hover:shadow-2xl flex flex-col">
@@ -16,7 +36,7 @@ function MovieCard({ title, imageUrl, rating }) {
 
         {/* Overlay on Hover */}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-          <button className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-full transition-all duration-200">
+          <button onClick={handlePlayClick} className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-full transition-all duration-200">
             <Play size={24} fill="white" />
           </button>
         </div>

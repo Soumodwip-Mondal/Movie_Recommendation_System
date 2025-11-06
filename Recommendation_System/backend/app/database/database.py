@@ -7,3 +7,4 @@ client=MongoClient(DATABASE_URL)
 db=client['movie_user']
 user_collection=db['user']
 movie_history=db['movies']
+movie_data=db['all_movies']

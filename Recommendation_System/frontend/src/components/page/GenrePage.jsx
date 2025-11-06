@@ -1,22 +1,36 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import HistoryMovieCard from '../ui/HistoryMovieCard'
+import { useMovies } from '../../context/movieContext'
 
 function GenrePage() {
-  // Mock genres
   const genres = ['Action', 'Thriller', 'Drama', 'Sci-Fi', 'Comedy', 'Horror']
-
-  // Mock movies
-  const movies = [
-    { id: 1, name: 'Inception', rating: 8.8, genres: ['Sci-Fi', 'Thriller'], image: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&h=600&fit=crop', year: '2010' },
-    { id: 2, name: 'The Dark Knight', rating: 9.0, genres: ['Action', 'Drama'], image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=600&fit=crop', year: '2008' },
-    { id: 3, name: 'Interstellar', rating: 8.6, genres: ['Sci-Fi', 'Drama'], image: 'https://images.unsplash.com/photo-1489599849228-ed4dc6900f2c?w=400&h=600&fit=crop', year: '2014' },
-    { id: 4, name: 'Pulp Fiction', rating: 8.9, genres: ['Drama', 'Thriller'], image: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=600&fit=crop', year: '1994' },
-    { id: 5, name: 'Matrix', rating: 8.7, genres: ['Sci-Fi', 'Action'], image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400&h=600&fit=crop', year: '1999' },
-    { id: 6, name: 'Fight Club', rating: 8.8, genres: ['Drama', 'Thriller'], image: 'https://images.unsplash.com/photo-1517604931442-7e0c6cc4de38?w=400&h=600&fit=crop', year: '1999' }
-  ]
-
   const [activeGenre, setActiveGenre] = useState(null)
   const [savedMovies, setSavedMovies] = useState(new Set())
+  const [allMovies, setAllMovies] = useState([])
+  const { cache, fetchGenres } = useMovies()
+  const loading = cache.genres.loading
+
+  useEffect(() => {
+    let ignore = false
+    async function load() {
+      try {
+        const res = await fetchGenres() // Uses cache automatically!
+        const list = (res || []).map(m => ({
+          id: m.id,
+          name: m.title || m.name || 'Untitled',
+          rating: m.vote_average ? Number(m.vote_average).toFixed(1) : null,
+          genres: m.genres?.map(g => g.name) || ['Drama'],
+          image: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : null,
+        }))
+        if (!ignore) setAllMovies(list)
+      } catch (e) {
+        console.error('Failed to fetch movies', e)
+        if (!ignore) setAllMovies([])
+      }
+    }
+    load()
+    return () => { ignore = true }
+  }, [fetchGenres])
 
   const toggleSave = (id) => {
     const newSaved = new Set(savedMovies)
@@ -26,13 +40,13 @@ function GenrePage() {
   }
 
   const handleShare = (id) => {
-    const movie = movies.find(m => m.id === id)
+    const movie = allMovies.find(m => m.id === id)
     console.log('Sharing:', movie?.name)
   }
 
   const filteredMovies = activeGenre
-    ? movies.filter(movie => movie.genres.includes(activeGenre))
-    : movies
+    ? allMovies.filter(movie => movie.genres?.includes(activeGenre))
+    : allMovies
 
   return (
     <div className="min-h-screen bg-black text-white px-6 md:px-16 py-10">
@@ -72,9 +86,12 @@ function GenrePage() {
       </div>
 
       {/* Movies Grid */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredMovies.length > 0 ? (
-          filteredMovies.map((movie) => (
+      {loading ? (
+        <div className="text-center text-gray-400">Loading...</div>
+      ) : (
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredMovies.length > 0 ? (
+            filteredMovies.slice(0, 12).map((movie) => (
             <HistoryMovieCard
               key={movie.id}
               movie={movie}
@@ -83,13 +100,14 @@ function GenrePage() {
               onShare={handleShare}
             />
           ))
-        ) : (
-          <div className="col-span-full text-center py-20">
-            <h3 className="text-2xl font-bold mb-2">No movies found</h3>
-            <p className="text-gray-400">Try selecting a different genre</p>
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className="col-span-full text-center py-20">
+              <h3 className="text-2xl font-bold mb-2">No movies found</h3>
+              <p className="text-gray-400">Try selecting a different genre</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

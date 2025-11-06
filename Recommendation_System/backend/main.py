@@ -5,6 +5,8 @@ from app.config.config import Settings
 Settings=Settings()
 from app.routes.auth_route import auth_router
 from app.routes.recommendation import recommendation_router
+from app.routes.history import history_router
+
 app=FastAPI(
     title='choose your own adventure game',
     version='0.1.0',
@@ -20,10 +22,11 @@ app.add_middleware(
 )
 app.include_router(router=auth_router)
 app.include_router(router=recommendation_router)
+app.include_router(router=history_router)
+
 @app.get('/')
 def main():
-    return {'database url':DATABASE_URL}
-
+    return {'message':'connection estabilished'}
 
 if __name__ == "__main__":
     main()

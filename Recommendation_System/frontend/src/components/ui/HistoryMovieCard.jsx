@@ -3,12 +3,9 @@ import { Star, Play, Heart, Share2 } from "lucide-react";
 
 function HistoryMovieCard({ movie, isSaved, onSave, onShare }) {
   const [isHovered, setIsHovered] = useState(false);
-  const [isLiking, setIsLiking] = useState(false);
 
   const handleSave = () => {
-    setIsLiking(true);
     onSave(movie.id);
-    setTimeout(() => setIsLiking(false), 500);
   };
 
   return (

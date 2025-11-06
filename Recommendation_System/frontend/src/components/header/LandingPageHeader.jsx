@@ -1,5 +1,3 @@
-import { Menu, Search, User, X } from "lucide-react";
-import { useState } from "react";
 import Button from "../ui/Button";
 export default function LandingPageHeader({ onLoginClick, onSignupClick }) {
   return (

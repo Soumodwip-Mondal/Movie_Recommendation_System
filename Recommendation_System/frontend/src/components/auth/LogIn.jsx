@@ -1,14 +1,30 @@
 import React, { useState } from "react";
 import { Check } from "lucide-react";
+import { useAuth } from "../../context/authContext";
 
 export default function LogIn({ onClose, onSwitchToSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Welcome back, ${email}!`);
+    setError("");
+    setLoading(true);
+    try {
+      await login({ email, password });
+      if (rememberMe) {
+        // token already stored by context; could persist additional data here
+      }
+      onClose?.();
+    } catch {
+      setError("Invalid email or password.");
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div
@@ -36,6 +52,7 @@ export default function LogIn({ onClose, onSwitchToSignup }) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && <div className="text-red-400 text-sm">{error}</div>}
           <input
             type="email"
             value={email}
@@ -73,9 +90,10 @@ export default function LogIn({ onClose, onSwitchToSignup }) {
 
           <button
             type="submit"
-            className="w-full mt-4 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-md transition-transform duration-300 hover:scale-105 active:scale-95"
+            disabled={loading}
+            className="w-full mt-4 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-md transition-transform duration-300 hover:scale-105 active:scale-95 disabled:opacity-60"
           >
-            Sign In
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 

@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/authContext";
 import LandingPageHeader from "../header/LandingPageHeader";
 import Footer from "../footer/Footer";
 import SignUp from "../auth/SignUp";
@@ -9,6 +11,15 @@ import Button from "../ui/Button";
 function LandingPage() {
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
+  const { token } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (token) {
+      navigate('/', { replace: true });
+    }
+  }, [token, navigate]);
 
   const handleLoginClick = () => {
     setShowLogin(true);
