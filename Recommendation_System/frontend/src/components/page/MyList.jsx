@@ -6,15 +6,20 @@ import { useMovies } from '../../context/movieContext'
 function MyList() {
   const { token } = useAuth()
   const [movies, setMovies] = useState([])
-  const { cache, fetchMyList } = useMovies()
-  const loading = cache.myList.loading
+  const { getCache, fetchMyList } = useMovies()
+  
+  // Get cache state
+  const cache = getCache('myList')
+  const loading = cache.loading
 
   useEffect(() => {
+    if (!token) return
+
     let ignore = false
+    
     async function load() {
-      if (!token) return
       try {
-        const res = await fetchMyList() // Uses cache automatically!
+        const res = await fetchMyList() // Will use cache automatically!
         const list = (res || []).map(m => ({
           id: m.id,
           name: m.title || 'Unavailable',
@@ -27,9 +32,10 @@ function MyList() {
         if (!ignore) setMovies([])
       }
     }
+    
     load()
     return () => { ignore = true }
-  }, [token, fetchMyList])
+  }, [token, fetchMyList]) // fetchMyList is stable now
 
   const handleRemove = (id) => {
     setMovies(movies.filter(movie => movie.id !== id))

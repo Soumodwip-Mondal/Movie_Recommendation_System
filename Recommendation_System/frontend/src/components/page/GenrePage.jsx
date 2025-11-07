@@ -7,11 +7,15 @@ function GenrePage() {
   const [activeGenre, setActiveGenre] = useState(null)
   const [savedMovies, setSavedMovies] = useState(new Set())
   const [allMovies, setAllMovies] = useState([])
-  const { cache, fetchGenres } = useMovies()
-  const loading = cache.genres.loading
+  const { getCache, fetchGenres } = useMovies()
+  
+  // Get cache state
+  const cache = getCache('genres')
+  const loading = cache.loading
 
   useEffect(() => {
     let ignore = false
+    
     async function load() {
       try {
         const res = await fetchGenres() // Uses cache automatically!
@@ -28,9 +32,10 @@ function GenrePage() {
         if (!ignore) setAllMovies([])
       }
     }
+    
     load()
     return () => { ignore = true }
-  }, [fetchGenres])
+  }, [fetchGenres]) // fetchGenres is stable now
 
   const toggleSave = (id) => {
     const newSaved = new Set(savedMovies)
@@ -50,15 +55,12 @@ function GenrePage() {
 
   return (
     <div className="min-h-screen bg-black text-white px-6 md:px-16 py-10">
-      {/* Title */}
       <div className="max-w-7xl mx-auto mb-10">
         <h1 className="text-4xl font-black mb-2">Browse by Genre</h1>
         <p className="text-gray-400">Select a genre to explore movies</p>
       </div>
 
-      {/* Genre Buttons */}
       <div className="flex flex-wrap gap-3 mb-10 max-w-7xl mx-auto">
-        {/* All Button */}
         <button
           onClick={() => setActiveGenre(null)}
           className={`px-6 py-3 rounded-full text-sm font-bold ${
@@ -85,21 +87,20 @@ function GenrePage() {
         ))}
       </div>
 
-      {/* Movies Grid */}
       {loading ? (
         <div className="text-center text-gray-400">Loading...</div>
       ) : (
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredMovies.length > 0 ? (
             filteredMovies.slice(0, 12).map((movie) => (
-            <HistoryMovieCard
-              key={movie.id}
-              movie={movie}
-              isSaved={savedMovies.has(movie.id)}
-              onSave={toggleSave}
-              onShare={handleShare}
-            />
-          ))
+              <HistoryMovieCard
+                key={movie.id}
+                movie={movie}
+                isSaved={savedMovies.has(movie.id)}
+                onSave={toggleSave}
+                onShare={handleShare}
+              />
+            ))
           ) : (
             <div className="col-span-full text-center py-20">
               <h3 className="text-2xl font-bold mb-2">No movies found</h3>

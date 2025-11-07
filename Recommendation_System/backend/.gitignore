@@ -8,6 +8,10 @@ __pycache__/
 .venv/
 venv/
 
+*.pkl
+*.h5
+*.csv
+
 # Environment variables
 .env
 

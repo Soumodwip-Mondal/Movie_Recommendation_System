@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
       if (!token) { setUser(null); return }
       setLoading(true)
       try {
-        const res = await apiFetch('/api/current_user', { headers: { Authorization: `Bearer ${token}` } })
+        const res = await apiFetch('/current_user', { headers: { Authorization: `Bearer ${token}` } })
         if (!ignore) setUser(res)
       } catch (e) {
         console.error('Failed to load current user', e)

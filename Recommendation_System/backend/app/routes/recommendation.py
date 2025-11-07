@@ -11,7 +11,7 @@ from app.recommendation_model.recommand import (
 from app.config.config import Settings
 
 # Initialize settings
-settings = Settings()
+settings = Settings() # type: ignore
 tmdb_api_key = settings.TMDBAPI_KEY
 
 # Router setup
@@ -135,7 +135,7 @@ def get_random_sample():
 def get_top_6(name: str):
     """Get top 6 similar movies based on movie name."""
     try:
-        movie_list = recommand_top_6(name)
+        movie_list = recommand_top_6(name)  
         
         if isinstance(movie_list, dict) and "error" in movie_list:
             raise HTTPException(status_code=404, detail=movie_list["error"])
@@ -174,3 +174,44 @@ def get_top_6_to_12(name: str):
     except Exception as e:
         print(f"Error in get_top_6_to_12: {e}")
         raise HTTPException(status_code=500, detail="Internal server error while fetching recommendations")
+
+@recommendation_router.get("/search")
+def search_movies(query: str):
+    """Search movies by title using TMDB API."""
+    try:
+        if not query or len(query.strip()) < 2:
+            raise HTTPException(status_code=400, detail="Search query must be at least 2 characters")
+        
+        search_url = f"https://api.themoviedb.org/3/search/movie"
+        params = {
+            'api_key': tmdb_api_key,
+            'query': query.strip(),
+            'page': 1,
+            'include_adult': False
+        }
+        
+        response = session.get(search_url, params=params, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            movies = data.get('results', [])
+            
+            # Sort by popularity and limit results
+            movies.sort(key=lambda x: x.get('popularity', 0), reverse=True)
+            movies = movies[:20]  # Limit to 20 results
+            
+            return {
+                "movies": movies, 
+                "total_results": data.get('total_results', 0),
+                "query": query
+            }
+        else:
+            print(f"⚠️ TMDB API error: {response.status_code}")
+            raise HTTPException(status_code=response.status_code, detail="TMDB API error")
+            
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Search request error: {e}")
+        raise HTTPException(status_code=500, detail="Search request failed")
+    except Exception as e:
+        print(f"❌ Unexpected search error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error during search")
