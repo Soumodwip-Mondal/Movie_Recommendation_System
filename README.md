@@ -76,16 +76,7 @@ A full-stack movie recommendation platform with personalized suggestions, user a
    pip install -r requirements.txt
    ```
 
-3. **Create `.env` file** in the backend folder:
-   ```env
-   DATABASE_URL=mongodb://localhost:27017/movie_recommendation
-   SECRET_KEY=your-secret-key-change-in-production
-   ALGORITHM=HS256
-   TMDBAPI_KEY=your-tmdb-api-key-here
-   ALLOW_ORIGIN=http://localhost:5173
-   ```
-
-4. **Run the server**
+3. **Run the server**
    ```bash
    uvicorn main:app --reload --host 127.0.0.1 --port 8000
    ```
