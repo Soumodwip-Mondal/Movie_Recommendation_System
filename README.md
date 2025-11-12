@@ -60,7 +60,7 @@ A full-stack movie recommendation platform with personalized suggestions, user a
 
 ### Prerequisites
 - Python 3.11+
-- Node.js 18+
+- fastapi
 - MongoDB (local or cloud)
 - TMDB API key (get from https://www.themoviedb.org/settings/api)
 
