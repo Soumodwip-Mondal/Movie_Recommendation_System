@@ -55,26 +55,26 @@ def fetch_movie_from_tmdb(movie_id: int, retries: int = 3, delay: float = 0.5):
             if response.status_code == 200:
                 return response.json()
             elif response.status_code == 404:
-                print(f"⚠️ Movie {movie_id} not found in TMDB (404)")
+                print(f"Movie {movie_id} not found in TMDB (404)")
                 return None
             else:
-                print(f"⚠️ TMDB responded with {response.status_code} for movie {movie_id}")
+                print(f"TMDB responded with {response.status_code} for movie {movie_id}")
                 if attempt < retries - 1:
                     time.sleep(delay * (2 ** attempt))  # Exponential backoff
         except requests.exceptions.Timeout:
-            print(f"⚠️ Timeout on attempt {attempt+1} for movie {movie_id}")
+            print(f"Timeout on attempt {attempt+1} for movie {movie_id}")
             if attempt < retries - 1:
                 time.sleep(delay * (2 ** attempt))
         except requests.exceptions.ConnectionError as e:
-            print(f"⚠️ Connection error on attempt {attempt+1} for movie {movie_id}: {e}")
+            print(f"Connection error on attempt {attempt+1} for movie {movie_id}: {e}")
             if attempt < retries - 1:
                 time.sleep(delay * (2 ** attempt))
         except requests.exceptions.RequestException as e:
-            print(f"⚠️ Request failed on attempt {attempt+1} for movie {movie_id}: {e}")
+            print(f"Request failed on attempt {attempt+1} for movie {movie_id}: {e}")
             if attempt < retries - 1:
                 time.sleep(delay * (2 ** attempt))
     
-    print(f"❌ Failed to fetch movie {movie_id} after {retries} retries.")
+    print(f"Failed to fetch movie {movie_id} after {retries} retries.")
     return None
 
 
@@ -113,7 +113,7 @@ def fetch_multiple_movies(movie_ids: list, rate_limit_delay: float = 0.1):
     return movie_details
 
 
-# 🎲 Cold start route (random 30 movies)
+#  Cold start route (random 30 movies)
 @recommendation_router.get("/cold-sample")
 def get_random_sample():
     """Get 30 random movie recommendations for cold start."""
@@ -126,7 +126,7 @@ def get_random_sample():
         
         return {"movies": movie_details}
     except Exception as e:
-        print(f"❌ Error in get_random_sample: {e}")
+        print(f"Error in get_random_sample: {e}")
         raise HTTPException(status_code=500, detail="Internal server error while fetching recommendations")
 
 

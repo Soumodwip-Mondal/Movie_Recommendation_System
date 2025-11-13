@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Star, Heart } from 'lucide-react'
+import { Star, Play } from 'lucide-react'
 import { useAuth } from '../../context/authContext'
 import { useMovies } from '../../context/movieContext'
 
@@ -68,8 +68,8 @@ function MyList() {
                 <div className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 rounded-md text-xs font-bold text-yellow-400 flex items-center gap-1">
                   <span>⭐</span> {movie.rating || '-'}
                 </div>
-                <div className="absolute top-2 right-2 flex items-center gap-1 bg-[#E54B4B] px-2 py-1 rounded-md text-xs font-semibold">
-                  <Heart size={12} /> Saved
+                <div className="absolute top-2 right-2 flex items-center gap-1 bg-blue-600 px-2 py-1 rounded-md text-xs font-semibold">
+                  <Play size={12} /> Watched
                 </div>
               </div>
               <div className="p-3 flex justify-between items-center">

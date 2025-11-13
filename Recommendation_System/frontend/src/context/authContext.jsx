@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
       if (!token) { setUser(null); return }
       setLoading(true)
       try {
-        const res = await apiFetch('/current_user', { headers: { Authorization: `Bearer ${token}` } })
+        const res = await apiFetch('/api/current_user', { headers: { Authorization: `Bearer ${token}` } })
         if (!ignore) setUser(res)
       } catch (e) {
         console.error('Failed to load current user', e)
@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
   }, [token])
 
   async function login({ email, password }) {
-    const res = await apiFetch('/login', {
+    const res = await apiFetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -39,7 +39,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('token', t)
     setToken(t)
     // load user after login
-    const me = await apiFetch('/current_user', { headers: { Authorization: `Bearer ${t}` } })
+    const me = await apiFetch('/api/current_user', { headers: { Authorization: `Bearer ${t}` } })
     setUser(me)
     return me
   }
@@ -50,7 +50,7 @@ export function AuthProvider({ children }) {
     
     try {
       console.log('[AUTH] Calling /api/signup...');
-      const res = await apiFetch('/signup', {
+      const res = await apiFetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, genres })

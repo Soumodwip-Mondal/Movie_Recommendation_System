@@ -5,6 +5,8 @@ import TopRated from './components/page/TopRated'
 import Profile from './components/Profile/Profile'
 import LandingPage from './components/page/LandingPage'
 import Page from './components/page/Page'
+import SearchDisplay from './components/page/SearchDisplay'
+import SearchPage from './components/page/SearchPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider, Navigate } from 'react-router-dom'
 
@@ -22,6 +24,10 @@ function App() {
         <Route path='top-rated' element={<TopRated/>}/>
         <Route path='mylist' element={<MyList/>}/>
         <Route path='profile' element={<Profile/>}/>
+        {/* Full search results page */}
+        <Route path='search' element={<SearchPage/>} />
+        {/* Recommendations search display */}
+        <Route path='recommend' element={<SearchDisplay/>} />
       </Route>
       
       {/* Fallback redirect */}

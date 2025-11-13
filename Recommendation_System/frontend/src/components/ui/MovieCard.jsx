@@ -7,19 +7,26 @@ function MovieCard({ title, imageUrl, rating, movieId }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const { token } = useAuth();
 
-  const handlePlayClick = async () => {
-    if (!token || !movieId) return;
+  const handlePlayClick = () => {
+    // Open a YouTube search for the movie trailer in a new tab immediately (avoid popup blockers)
+    const query = `${title || ''} trailer`.trim();
+    const youtubeUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+    window.open(youtubeUrl, '_blank', 'noopener,noreferrer');
+
+    // Fire-and-forget: record watch history if possible (do not block the new tab)
     try {
-      await apiFetch('/api/user/history/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ tmdb_movie_id: movieId }),
-      });
-      console.log('Added to history:', title);
+      if (movieId) {
+        apiFetch('/api/user/history/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // Authorization header is auto-injected by apiFetch when available
+          },
+          body: JSON.stringify({ tmdb_movie_id: movieId }),
+        }).catch(() => {});
+      }
     } catch (e) {
+      // Ignore history failures to not affect UX
       console.error('Failed to add to history', e);
     }
   };

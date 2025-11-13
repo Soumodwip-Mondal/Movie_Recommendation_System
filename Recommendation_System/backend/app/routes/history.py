@@ -43,7 +43,6 @@ def get_history(user=Depends(get_current_user)):
         if movie_data:
             movies.append(movie_data)
         else:
-            # ✅ If TMDB fails, return placeholder data
             movies.append({
                 "id": movie_id,
                 "title": "Unavailable",

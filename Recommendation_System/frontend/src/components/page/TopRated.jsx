@@ -27,10 +27,18 @@ function TopRated() {
     async function load() {
       try {
         const res = await fetchTopRated()
-        const movies = (res || []).map(mapTmdbToCard)
+        const raw = Array.isArray(res) ? res : []
+
+        // Filter by rating thresholds
+        const mostRaw = raw.filter(m => Number(m?.vote_average || 0) > 8)
+        const topRaw = raw.filter(m => Number(m?.vote_average || 0) > 7 && Number(m?.vote_average || 0) <= 8)
+
+        const mostCards = mostRaw.map(mapTmdbToCard)
+        const topCards = topRaw.map(mapTmdbToCard)
+
         if (!ignore) {
-          setPrimary(movies.slice(0, 12))
-          setSecondary(movies.slice(12))
+          setPrimary(mostCards)
+          setSecondary(topCards)
         }
       } catch (e) {
         console.error('Failed to fetch top rated', e)
@@ -53,15 +61,14 @@ function TopRated() {
           <div className="text-center text-gray-400">Loading...</div>
         ) : (
           <>
-            <ScrollSection title="Top Rated Movies" movies={primary} />
-            <ScrollSection title="More Top Rated" movies={secondary} />
+            <ScrollSection title="Most Top Rated (>8)" movies={primary} />
 
             <section className="w-full">
               <h2 className="text-xl sm:text-2xl lg:text-3xl text-white font-bold mb-4 sm:mb-6 text-center sm:text-left">
                 All Top Rated
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6 w-full">
-                {(secondary || []).slice(0, 18).map((movie, idx) => (
+                {[...primary, ...secondary].slice(0, 18).map((movie, idx) => (
                   <MovieCard 
                     key={idx} 
                     title={movie.title} 

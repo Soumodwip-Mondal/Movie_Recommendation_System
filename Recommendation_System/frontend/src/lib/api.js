@@ -1,7 +1,16 @@
 const API_BASE = '/api'
 
 export async function apiFetch(path, options = {}) {
-  const url = path.startsWith('http') ? path : `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`
+  let url
+  if (path.startsWith('http')) {
+    url = path
+  } else if (path.startsWith('/')) {
+    // Absolute path provided, leave as-is (works for both /api/* and root auth endpoints)
+    url = path
+  } else {
+    // Fallback: treat as relative to API base
+    url = `${API_BASE}/${path}`
+  }
   console.log('[API] Request:', {
     path,
     url,
@@ -10,7 +19,17 @@ export async function apiFetch(path, options = {}) {
   })
   
   try {
-    const res = await fetch(url, options)
+    // Merge headers and inject Authorization if available
+    const mergedHeaders = { ...(options.headers || {}) }
+    if (!mergedHeaders.Authorization) {
+      try {
+        const t = localStorage.getItem('token')
+        if (t) mergedHeaders.Authorization = `Bearer ${t}`
+      } catch {}
+    }
+    const fetchOptions = { ...options, headers: mergedHeaders }
+
+    const res = await fetch(url, fetchOptions)
     
     console.log('[API] Response:', {
       status: res.status,

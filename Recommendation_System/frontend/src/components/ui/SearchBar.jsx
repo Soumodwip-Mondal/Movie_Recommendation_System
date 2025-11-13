@@ -4,7 +4,7 @@ import { Search, X, Loader2, Film } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useMovies } from '../../context/movieContext'
 
-function SearchBar({ onSearch }) {
+function SearchBar({ onSearch, onMovieSelect, placeholder }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedTerm, setDebouncedTerm] = useState('')
   const [isFocused, setIsFocused] = useState(false)
@@ -68,6 +68,8 @@ function SearchBar({ onSearch }) {
             year: m.release_date ? new Date(m.release_date).getFullYear() : null,
             rating: m.vote_average ? Number(m.vote_average).toFixed(1) : null,
             poster: m.poster_path ? `https://image.tmdb.org/t/p/w92${m.poster_path}` : null,
+            // Store full data for onMovieSelect
+            fullData: m
           }))
           setResults(topResults)
         }
@@ -96,15 +98,22 @@ function SearchBar({ onSearch }) {
     setResults([])
   }
 
-  const handleMovieClick = (movieId) => {
+  const handleMovieClick = (movie) => {
     setIsFocused(false)
     setSearchTerm('')
     setResults([])
-    if (onSearch) {
-      onSearch('')
+    
+    // If onMovieSelect callback is provided (for SearchDisplay), use it
+    if (onMovieSelect) {
+      onMovieSelect(movie.fullData)
+    } else {
+      // Otherwise, navigate to full search page with the movie title as query
+      if (onSearch) {
+        onSearch('')
+      }
+      const title = movie.title || movie.fullData?.title || movie.fullData?.name || ''
+      navigate(`/search?q=${encodeURIComponent(title)}`)
     }
-    // For now, just navigate to search page with the movie
-    navigate(`/search?q=${movieId}`)
   }
 
   const handleViewAll = () => {
@@ -141,7 +150,7 @@ function SearchBar({ onSearch }) {
         {/* Input Field */}
         <input
           type="text"
-          placeholder="Search movies, TV shows..."
+          placeholder={placeholder || "Search movies, TV shows..."}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setIsFocused(true)}
@@ -196,14 +205,16 @@ function SearchBar({ onSearch }) {
           ) : results.length > 0 ? (
             <>
               <div className="p-3 border-b border-gray-700">
-                <p className="text-sm text-gray-400">Top Results</p>
+                <p className="text-sm text-gray-400">
+                  {onMovieSelect ? 'Select a movie to get recommendations' : 'Top Results'}
+                </p>
               </div>
               
               <div className="max-h-80 overflow-y-auto">
                 {results.map((movie) => (
                   <button
                     key={movie.id}
-                    onClick={() => handleMovieClick(movie.id)}
+                    onClick={() => handleMovieClick(movie)}
                     className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-700 transition-colors duration-150"
                   >
                     {/* Movie Poster */}
@@ -240,13 +251,15 @@ function SearchBar({ onSearch }) {
                 ))}
               </div>
 
-              {/* View All Button */}
-              <button
-                onClick={handleViewAll}
-                className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold text-sm transition-all duration-200"
-              >
-                View All Results for "{searchTerm}"
-              </button>
+              {/* View All Button - Only show if not using onMovieSelect */}
+              {!onMovieSelect && (
+                <button
+                  onClick={handleViewAll}
+                  className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold text-sm transition-all duration-200"
+                >
+                  View All Results for "{searchTerm}"
+                </button>
+              )}
             </>
           ) : debouncedTerm && !searching ? (
             <div className="flex flex-col items-center justify-center py-8 px-4">

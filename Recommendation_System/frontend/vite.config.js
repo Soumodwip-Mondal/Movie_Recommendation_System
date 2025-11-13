@@ -8,12 +8,12 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      // Proxy API during dev to avoid CORS and use relative '/api' in fetch
+      // Proxy API during dev to avoid CORS. Preserve '/api' because backend routes are prefixed with '/api'.
       '/api': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, ''), // Strip /api prefix
+        // Do not rewrite; backend expects '/api/*'
       },
     },
   }

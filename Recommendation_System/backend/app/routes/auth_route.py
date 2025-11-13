@@ -6,7 +6,7 @@ from app.database.database import user_collection
 from app.auth.auth import hash_password, verify_password, create_access_token, verify_token
 from bson import ObjectId
 
-auth_router = APIRouter(tags=["Auth"])
+auth_router = APIRouter(prefix="/api", tags=["Auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
 
 @auth_router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)

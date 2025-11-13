@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useRef, useCallback } from 'react';
 import { apiFetch } from '../lib/api';
 
@@ -88,7 +89,8 @@ export function MoviesProvider({ children }) {
 
   // Specific fetch functions - these are memoized and won't change
   const fetchTopRated = useCallback(() => {
-    return fetchWithCache('topRated', '/api/top-rated');
+    // Use dedicated backend endpoint backed by TMDB Discover; fetch >= 7 rating to have enough results
+    return fetchWithCache('topRated', '/api/top-rated?min_rating=7&min_votes=1000');
   }, [fetchWithCache]);
 
   const fetchMyList = useCallback(() => {
