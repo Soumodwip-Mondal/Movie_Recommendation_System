@@ -126,8 +126,7 @@ function SearchDisplay() {
             </div>
           </div>
         )}
-
-        {/* Selected Movie Banner */}
+        
         {selectedMovieData && !isLoadingTop6 && (
           <div className="max-w-4xl mx-auto mb-12 p-6 bg-linear-to-r from-gray-800/80 via-gray-800/60 to-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-2xl">
             <div className="flex flex-col sm:flex-row items-center gap-6">
