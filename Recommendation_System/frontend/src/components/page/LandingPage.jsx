@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext";
 import LandingPageHeader from "../header/LandingPageHeader";
@@ -14,10 +14,37 @@ function LandingPage() {
   const { token } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already logged in
+  // Collect all jpg/png assets for slideshow (Vite eager import)
+  const slideshowImages = useMemo(() => {
+    const modules = import.meta.glob("../../assets/*.{png,jpg}", {
+      eager: true,
+      import: "default",
+    });
+    const urls = Object.values(modules);
+    // Ensure we always have at least one image
+    return urls.length ? urls : [movieImage];
+  }, []);
+
+  const [current, setCurrent] = useState(0);
+
+  // Rotate images every 5 seconds
+  useEffect(() => {
+    if (!slideshowImages.length) return;
+    const id = setInterval(() => {
+      setCurrent((i) => (i + 1) % slideshowImages.length);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [slideshowImages.length]);
+
+  // Redirect if already logged in: restore last protected route if available
   useEffect(() => {
     if (token) {
-      navigate('/', { replace: true });
+      let to = '/';
+      try {
+        const last = localStorage.getItem('cinepulse.lastRoute');
+        if (last && last.startsWith('/')) to = last;
+      } catch {}
+      navigate(to, { replace: true });
     }
   }, [token, navigate]);
 
@@ -45,24 +72,36 @@ function LandingPage() {
 
       {/* Hero Section */}
       <div
-        className="relative min-h-screen w-full text-white flex flex-col justify-center px-10 md:px-20 bg-gradient-to-b from-gray-900 via-gray-900 to-black"
-        style={{
-          backgroundImage: `url(${movieImage})`,
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-        }}
+        className="relative min-h-screen w-full text-white flex flex-col justify-center px-10 md:px-20 bg-gradient-to-b from-primary via-secondary to-primary overflow-hidden"
       >
-        <div className="absolute inset-0 bg-black/60"></div>
+        {/* Background slideshow */}
+        <div className="absolute inset-0">
+          {slideshowImages.map((src, i) => (
+            <img
+              key={src}
+              src={src}
+              alt="background"
+              aria-hidden={i !== current}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[1200ms] ${i === current ? 'opacity-100' : 'opacity-0'}`}
+            />
+          ))}
+        </div>
 
-        <div className="relative z-10 max-w-xl space-y-6 mt-20 md:mt-32">
-          <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
+        {/* Dark overlays */}
+        <div className="absolute inset-0 bg-black/60"></div>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+        {/* Accent ambient glow removed */}
+
+        <div className="relative z-10 max-w-2xl space-y-6 mt-20 md:mt-32">
+          <h1 className="text-5xl md:text-6xl font-extrabold leading-tight animate-slide-up">
             Unlimited Movies, TV Shows, and More.
           </h1>
-          <p className="text-lg text-gray-300">
-            Watch anywhere, Watch as you want.
+          <p className="text-lg text-gray-300 animate-fade-in-delayed">
+            Watch anywhere. Watch the way you want.
           </p>
-          <Button onClick={handleSignupClick}>Get Started</Button>
+          <div className="animate-scale-in">
+            <Button onClick={handleSignupClick}>Get Started</Button>
+          </div>
         </div>
       </div>
 

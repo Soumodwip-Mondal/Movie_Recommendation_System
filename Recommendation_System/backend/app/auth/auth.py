@@ -5,8 +5,10 @@ from app.config.config import Settings
 from typing import Optional
 
 settings = Settings()
-# Use bcrypt which is more widely supported
-context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Use a pure-Python hasher to avoid native bcrypt backend issues on some hosts
+# NOTE: Existing bcrypt-hashed passwords will no longer verify. For a clean
+# deployment, create new users after this change.
+context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 def hash_password(password: str):
     return context.hash(password)

@@ -77,3 +77,24 @@ def create_history(req: HistorySchema, user=Depends(get_current_user)):
     )
 
     return {"message": "Movie added to history."}
+
+
+@history_router.delete("/{movie_id}")
+def delete_history(movie_id: int, user=Depends(get_current_user)):
+    """Remove a movie from user's watch history."""
+    email = user.email
+    
+    current_user = movie_history.find_one({"email": email})
+    
+    if not current_user:
+        raise HTTPException(status_code=404, detail="User history not found")
+    
+    if movie_id not in current_user.get("movie_list", []):
+        raise HTTPException(status_code=404, detail="Movie not found in history")
+    
+    movie_history.update_one(
+        {"email": email},
+        {"$pull": {"movie_list": movie_id}}
+    )
+    
+    return {"message": "Movie removed from history."}

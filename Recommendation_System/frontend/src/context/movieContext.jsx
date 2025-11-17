@@ -5,17 +5,54 @@ import { apiFetch } from '../lib/api';
 const MoviesContext = createContext(null);
 
 export function MoviesProvider({ children }) {
-  // Use useRef to persist cache across component re-renders and re-mounts
-  const cacheRef = useRef({
+  // Persist cache across reloads using localStorage with TTL
+  const CACHE_STORAGE_KEY = 'cinepulse.cache.v1';
+  const DEFAULT_CACHE = {
     topRated: { data: null, loading: false, error: null, timestamp: null, promise: null },
     myList: { data: null, loading: false, error: null, timestamp: null, promise: null },
     genres: { data: null, loading: false, error: null, timestamp: null, promise: null },
     home: { data: null, loading: false, error: null, timestamp: null, promise: null },
-    search: {}, // Store multiple search queries: { "query": { data, timestamp, ... } }
-  });
+    search: {},
+  };
+  const cacheRef = useRef(DEFAULT_CACHE);
 
   // Cache duration in milliseconds (5 minutes)
   const CACHE_DURATION = 5 * 60 * 1000;
+
+  // Hydrate cache from localStorage on mount (respect TTL)
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem(CACHE_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      const now = Date.now();
+      const hydrated = { ...DEFAULT_CACHE };
+      ['topRated','myList','genres','home'].forEach((k) => {
+        const entry = parsed?.[k];
+        if (entry && entry.data && entry.timestamp && (now - entry.timestamp) < CACHE_DURATION) {
+          hydrated[k] = { ...hydrated[k], data: entry.data, timestamp: entry.timestamp };
+        }
+      });
+      // For search, keep nothing or a very small set (omit to avoid bloat)
+      cacheRef.current = hydrated;
+      // eslint-disable-next-line no-empty
+    } catch {}
+  }, [CACHE_DURATION]);
+
+  // Persist selected categories to localStorage (no promises)
+  const persistCache = React.useCallback(() => {
+    try {
+      const snapshot = {};
+      ['topRated','myList','genres','home'].forEach((k) => {
+        const { data, timestamp } = cacheRef.current[k] || {};
+        if (data && data.length) {
+          snapshot[k] = { data, timestamp };
+        }
+      });
+      localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(snapshot));
+      // eslint-disable-next-line no-empty
+    } catch {}
+  }, []);
 
   // Check if cache is still valid
   const isCacheValid = useCallback((timestamp) => {
@@ -63,6 +100,8 @@ export function MoviesProvider({ children }) {
           timestamp: Date.now(),
           promise: null
         };
+        // Persist to localStorage (selected categories only)
+        persistCache();
 
         console.log(`✅ [CACHE] Successfully cached ${category} with ${data?.length || 0} items`);
         return data;
@@ -76,6 +115,7 @@ export function MoviesProvider({ children }) {
           error: error.message,
           promise: null
         };
+        persistCache();
 
         throw error;
       }
@@ -195,6 +235,15 @@ export function MoviesProvider({ children }) {
       timestamp: null,
       promise: null
     };
+    // also drop from persisted snapshot
+    try {
+      const raw = localStorage.getItem(CACHE_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        delete parsed[category];
+        localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(parsed));
+      }
+    } catch {}
   }, []);
 
   // Clear all cache

@@ -1,15 +1,24 @@
-const API_BASE = '/api'
+// Base API URL
+// - In development, Vite dev server will proxy "/api" to your local backend.
+// - In production (Vercel), set VITE_API_BASE to your Render backend origin,
+//   e.g. "https://your-backend.onrender.com".
+const API_BASE = import.meta.env.VITE_API_BASE || ''
 
 export async function apiFetch(path, options = {}) {
   let url
   if (path.startsWith('http')) {
     url = path
   } else if (path.startsWith('/')) {
-    // Absolute path provided, leave as-is (works for both /api/* and root auth endpoints)
-    url = path
+    // Absolute path from the app perspective. If it's an API path, prepend API_BASE.
+    if (path.startsWith('/api')) {
+      url = `${API_BASE}${path}`
+    } else {
+      url = path
+    }
   } else {
-    // Fallback: treat as relative to API base
-    url = `${API_BASE}/${path}`
+    // Relative path: treat as relative to "/api" on the configured backend
+    const base = API_BASE || ''
+    url = `${base}/api/${path}`
   }
   console.log('[API] Request:', {
     path,

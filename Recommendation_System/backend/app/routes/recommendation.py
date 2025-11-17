@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 import requests
 import time
+from app.database.database import movie_data
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from app.recommendation_model.recommand import (
@@ -174,6 +175,36 @@ def get_top_6_to_12(name: str):
     except Exception as e:
         print(f"Error in get_top_6_to_12: {e}")
         raise HTTPException(status_code=500, detail="Internal server error while fetching recommendations")
+
+@recommendation_router.get("/top-rated")
+def top_rated(min_rating: float = 7.0, min_votes: int = 1000, page: int = 1):
+    """Get top-rated movies from TMDB using the Discover API."""
+    try:
+        discover_url = "https://api.themoviedb.org/3/discover/movie"
+        params = {
+            "api_key": tmdb_api_key,
+            "sort_by": "vote_average.desc",
+            "vote_average.gte": min_rating,
+            "vote_count.gte": min_votes,
+            "include_adult": False,
+            "include_video": False,
+            "language": "en-US",
+            "page": page
+        }
+        response = session.get(discover_url, params=params, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            movies = data.get("results", [])
+            return {"movies": movies}
+        else:
+            print(f"TMDB Discover error: {response.status_code}")
+            raise HTTPException(status_code=response.status_code, detail="TMDB API error")
+    except requests.exceptions.RequestException as e:
+        print(f"Top-rated request error: {e}")
+        raise HTTPException(status_code=500, detail="Top-rated request failed")
+    except Exception as e:
+        print(f"Unexpected top-rated error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error while fetching top-rated")
 
 @recommendation_router.get("/search")
 def search_movies(query: str):

@@ -15,7 +15,7 @@ export default function Header() {
     <>
       {/* Header Section */}
       <header className="fixed top-0 left-0 w-full z-40 bg-gradient-to-b from-gray-900 via-gray-900/95 to-transparent backdrop-blur-md border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16 md:h-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-14 md:h-16">
           
           {/*  Logo */}
           <div className="flex-shrink-0">
@@ -76,7 +76,7 @@ export default function Header() {
       </header>
 
       {/* Spacer for fixed header */}
-      <div className="h-16 md:h-20"></div>
+      <div className="h-14 md:h-16"></div>
     </>
   );
 }

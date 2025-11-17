@@ -1,9 +1,10 @@
 // src/components/page/SearchPage.jsx
 import React, { useState, useEffect, useRef } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search, X, Loader2 } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import MovieCard from '../ui/MovieCard'
 import { useMovies } from '../../context/movieContext'
+import { apiFetch } from '../../lib/api'
 
 function mapTmdbToCard(movie) {
   return {
@@ -23,6 +24,14 @@ function SearchPage() {
   const [movies, setMovies] = useState([])
   const [isSearching, setIsSearching] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
+
+  // Recommendation state
+  const [seedName, setSeedName] = useState('')
+  const [top6, setTop6] = useState([])
+  const [next6, setNext6] = useState([])
+  const [loadingReco, setLoadingReco] = useState(false)
+  const [recoError, setRecoError] = useState('')
+
   const { searchMovies } = useMovies()
   const debounceTimerRef = useRef(null)
 
@@ -37,65 +46,83 @@ function SearchPage() {
 
   // Debounce search input
   useEffect(() => {
-    // Clear existing timer
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
-    }
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
 
-    // Set new timer
     if (query.trim().length >= 2) {
       debounceTimerRef.current = setTimeout(() => {
         const trimmedQuery = query.trim()
         setDebouncedQuery(trimmedQuery)
-        // Update URL
         setSearchParams({ q: trimmedQuery })
       }, 500)
     } else {
       setDebouncedQuery('')
       setMovies([])
       setHasSearched(false)
+      setTop6([]); setNext6([]); setSeedName(''); setRecoError('')
     }
 
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
-      }
-    }
+    return () => { if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current) }
   }, [query, setSearchParams])
 
   // Perform search when debounced query changes
   useEffect(() => {
     if (!debouncedQuery) return
-
     let ignore = false
 
     async function performSearch() {
       setIsSearching(true)
       setHasSearched(true)
-
       try {
         const results = await searchMovies(debouncedQuery)
-        if (!ignore) {
-          setMovies(results || [])
-        }
+        if (!ignore) setMovies(results || [])
       } catch (error) {
         console.error('Search failed:', error)
-        if (!ignore) {
-          setMovies([])
-        }
+        if (!ignore) setMovies([])
       } finally {
-        if (!ignore) {
-          setIsSearching(false)
-        }
+        if (!ignore) setIsSearching(false)
       }
     }
 
     performSearch()
-
-    return () => {
-      ignore = true
-    }
+    return () => { ignore = true }
   }, [debouncedQuery, searchMovies])
+
+  // Derive a seed title and fetch recommendations (top 6 and next 6)
+  useEffect(() => {
+    if (!hasSearched || movies.length === 0) { setTop6([]); setNext6([]); setSeedName(''); return }
+
+    // Pick exact match if available, else take top result title
+    const exact = movies.find(m => (m.title || m.name || '').toLowerCase() === debouncedQuery.toLowerCase())
+    const title = exact?.title || exact?.name || movies[0]?.title || movies[0]?.name || ''
+    if (!title) { setTop6([]); setNext6([]); setSeedName(''); return }
+
+    let ignore = false
+    setSeedName(title)
+    setLoadingReco(true)
+    setRecoError('')
+    setTop6([]); setNext6([])
+
+    async function loadReco() {
+      try {
+        const r1 = await apiFetch(`/api/top_6?name=${encodeURIComponent(title)}`)
+        if (!ignore) setTop6(r1?.movies || [])
+      } catch (e) {
+        console.error('Failed to fetch top 6', e)
+        if (!ignore) setRecoError('No similar recommendations found for this title.')
+      }
+      try {
+        const r2 = await apiFetch(`/api/top_6_to_12?name=${encodeURIComponent(title)}`)
+        if (!ignore) setNext6(r2?.movies || [])
+      } catch (e) {
+        console.error('Failed to fetch next 6', e)
+      } finally {
+        if (!ignore) setLoadingReco(false)
+      }
+    }
+
+    loadReco()
+    return () => { ignore = true }
+  }, [debouncedQuery, movies, hasSearched])
 
   const handleClear = () => {
     setQuery('')
@@ -103,10 +130,15 @@ function SearchPage() {
     setMovies([])
     setHasSearched(false)
     setSearchParams({})
+    setTop6([]); setNext6([]); setSeedName(''); setRecoError('')
   }
 
+  // Build a set of recommended IDs to exclude from "Other results"
+  const recommendedIds = new Set([...(top6||[]), ...(next6||[])].map(m => m.id))
+  const otherMovies = (movies || []).filter(m => !recommendedIds.has(m.id))
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-black text-white px-6 md:px-16 py-10">
+    <div className="min-h-screen bg-linear-to-b from-gray-900 via-gray-900 to-black text-white px-6 md:px-16 py-10">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-10">
         <h1 className="text-4xl font-black mb-6">Search Movies</h1>
@@ -141,7 +173,7 @@ function SearchPage() {
       </div>
 
       {/* Results */}
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto space-y-10">
         {isSearching ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4"></div>
@@ -149,23 +181,79 @@ function SearchPage() {
           </div>
         ) : hasSearched && movies.length > 0 ? (
           <>
-            <p className="text-gray-400 mb-6">
-              Found {movies.length} result{movies.length !== 1 ? 's' : ''} for "{debouncedQuery}"
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6">
-              {movies.map((movie) => {
-                const cardData = mapTmdbToCard(movie)
-                return (
-                  <MovieCard
-                    key={movie.id}
-                    title={cardData.title}
-                    imageUrl={cardData.imageUrl}
-                    rating={cardData.rating}
-                    movieId={cardData.movieId}
-                  />
-                )
-              })}
+            {/* Recommendations sections */}
+            <div>
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <div className="h-px flex-1 bg-linear-to-r from-transparent via-red-500/50 to-transparent"></div>
+                <h2 className="text-2xl md:text-3xl font-bold text-center">
+                  <span className="bg-linear-to-r from-red-500 to-purple-500 bg-clip-text text-transparent">
+                    Recommendations{seedName ? ` for "${seedName}"` : ''}
+                  </span>
+                </h2>
+                <div className="h-px flex-1 bg-linear-to-r from-transparent via-purple-500/50 to-transparent"></div>
+              </div>
+
+              {loadingReco ? (
+                <div className="flex items-center justify-center py-10 text-gray-400">
+                  <Loader2 className="animate-spin mr-2" size={20} /> Loading recommendations...
+                </div>
+              ) : (
+                <>
+                  {recoError && (
+                    <p className="text-center text-red-300 text-sm mb-4">{recoError}</p>
+                  )}
+
+                  {top6.length > 0 && (
+                    <div className="mb-8">
+                      <h3 className="text-xl font-semibold mb-4">Top 6 Most Similar</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6">
+                        {top6.map((m) => {
+                          const c = mapTmdbToCard(m)
+                          return (
+                            <MovieCard key={m.id} title={c.title} imageUrl={c.imageUrl} rating={c.rating} movieId={c.movieId} />
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {next6.length > 0 && (
+                    <div className="mb-8">
+                      <h3 className="text-xl font-semibold mb-4">More Recommendations (7-12)</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6">
+                        {next6.map((m) => {
+                          const c = mapTmdbToCard(m)
+                          return (
+                            <MovieCard key={m.id} title={c.title} imageUrl={c.imageUrl} rating={c.rating} movieId={c.movieId} />
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
+
+            {/* Other search results (excluding ones shown above) */}
+            {otherMovies.length > 0 && (
+              <div>
+                <h3 className="text-xl font-semibold mb-4">Other Results</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6">
+                  {otherMovies.map((movie) => {
+                    const cardData = mapTmdbToCard(movie)
+                    return (
+                      <MovieCard
+                        key={movie.id}
+                        title={cardData.title}
+                        imageUrl={cardData.imageUrl}
+                        rating={cardData.rating}
+                        movieId={cardData.movieId}
+                      />
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </>
         ) : hasSearched && movies.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">

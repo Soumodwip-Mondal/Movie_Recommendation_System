@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Heart, Play } from 'lucide-react';
 import { useAuth } from '../../context/authContext';
+import { useMovies } from '../../context/movieContext';
 import { apiFetch } from '../../lib/api';
 
 function MovieCard({ title, imageUrl, rating, movieId }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const { token } = useAuth();
+  const { refreshCategory } = useMovies();
 
   const handlePlayClick = () => {
     // Open a YouTube search for the movie trailer in a new tab immediately (avoid popup blockers)
@@ -23,6 +25,9 @@ function MovieCard({ title, imageUrl, rating, movieId }) {
             // Authorization header is auto-injected by apiFetch when available
           },
           body: JSON.stringify({ tmdb_movie_id: movieId }),
+        }).then(() => {
+          // Refresh myList cache after successfully adding to history
+          refreshCategory('myList');
         }).catch(() => {});
       }
     } catch (e) {
@@ -32,7 +37,7 @@ function MovieCard({ title, imageUrl, rating, movieId }) {
   };
 
   return (
-    <div className="group w-full h-60 sm:h-64 md:h-72 bg-gray-900 rounded-xl shadow-2xl border border-white/15 overflow-hidden transform transition-all duration-300 hover:shadow-2xl flex flex-col">
+    <div className="group w-full h-60 sm:h-64 md:h-72 bg-gray-900 rounded-xl shadow-2xl border border-white/15 overflow-hidden transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:border-accent/50 flex flex-col animate-scale-in">
       {/* Image Section */}
       <div className="relative h-32 sm:h-36 md:h-48 overflow-hidden bg-gray-800">
         <img
@@ -61,7 +66,7 @@ function MovieCard({ title, imageUrl, rating, movieId }) {
       </div>
 
       {/* Info Section */}
-      <div className="flex-1 p-2 sm:p-3 flex flex-col justify-between bg-gradient-to-b from-gray-800 to-gray-900">
+      <div className="flex-1 p-2 sm:p-3 flex flex-col justify-between bg-linear-to-b from-gray-800 to-gray-900">
         <h2 className="text-white font-semibold text-xs sm:text-sm line-clamp-2">
           {title}
         </h2>

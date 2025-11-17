@@ -225,7 +225,7 @@ function SearchBar({ onSearch, onMovieSelect, placeholder }) {
                         className="w-10 h-14 object-cover rounded"
                       />
                     ) : (
-                      <div className="w-10 h-14 bg-gray-700 rounded flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-14 bg-gray-700 rounded flex items-center justify-center shrink-0">
                         <Film size={16} className="text-gray-500" />
                       </div>
                     )}
@@ -255,7 +255,7 @@ function SearchBar({ onSearch, onMovieSelect, placeholder }) {
               {!onMovieSelect && (
                 <button
                   onClick={handleViewAll}
-                  className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold text-sm transition-all duration-200"
+                  className="w-full py-3 bg-linear-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold text-sm transition-all duration-200"
                 >
                   View All Results for "{searchTerm}"
                 </button>

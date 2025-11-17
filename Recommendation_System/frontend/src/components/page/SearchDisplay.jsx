@@ -97,13 +97,13 @@ function SearchDisplay() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-black text-white px-6 md:px-16 py-10">
+    <div className="min-h-screen bg-linear-to-b from-gray-900 via-gray-900 to-black text-white px-6 md:px-16 py-10">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="text-red-500" size={32} />
-            <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-red-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl font-black bg-linear-to-r from-red-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
               Discover Similar Movies
             </h1>
             <Sparkles className="text-purple-500" size={32} />
@@ -117,7 +117,7 @@ function SearchDisplay() {
         {/* Error Message */}
         {error && (
           <div className="max-w-3xl mx-auto mb-8 p-4 bg-red-900/20 border border-red-500/30 rounded-xl flex items-start gap-3">
-            <AlertCircle className="text-red-400 flex-shrink-0 mt-0.5" size={20} />
+            <AlertCircle className="text-red-400 shrink-0 mt-0.5" size={20} />
             <div>
               <p className="text-red-200 text-sm">{error}</p>
               <p className="text-red-300/70 text-xs mt-1">
@@ -129,7 +129,7 @@ function SearchDisplay() {
 
         {/* Selected Movie Banner */}
         {selectedMovieData && !isLoadingTop6 && (
-          <div className="max-w-4xl mx-auto mb-12 p-6 bg-gradient-to-r from-gray-800/80 via-gray-800/60 to-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-2xl">
+          <div className="max-w-4xl mx-auto mb-12 p-6 bg-linear-to-r from-gray-800/80 via-gray-800/60 to-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-2xl">
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <div className="relative group">
                 <img
@@ -141,7 +141,7 @@ function SearchDisplay() {
                   alt={selectedMovieName}
                   className="w-32 h-48 object-cover rounded-lg shadow-2xl group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-lg"></div>
+                <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent rounded-lg"></div>
               </div>
               
               <div className="flex-1 text-center sm:text-left">
@@ -190,13 +190,13 @@ function SearchDisplay() {
         {!isLoadingTop6 && top6Movies.length > 0 && (
           <div className="mb-12">
             <div className="flex items-center justify-center gap-3 mb-8">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-500/50 to-transparent"></div>
+              <div className="h-px flex-1 bg-linear-to-r from-transparent via-red-500/50 to-transparent"></div>
               <h2 className="text-2xl md:text-3xl font-bold text-center">
-                <span className="bg-gradient-to-r from-red-500 to-purple-500 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-red-500 to-purple-500 bg-clip-text text-transparent">
                   Top 6 Most Similar Movies
                 </span>
               </h2>
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+              <div className="h-px flex-1 bg-linear-to-r from-transparent via-purple-500/50 to-transparent"></div>
             </div>
             
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6">
@@ -220,7 +220,7 @@ function SearchDisplay() {
                 <button
                   onClick={handleLoadMore}
                   disabled={isLoadingNext6}
-                  className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105 disabled:hover:scale-100"
+                  className="group flex items-center gap-3 px-8 py-4 bg-linear-to-r from-red-600 to-purple-600 hover:from-red-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105 disabled:hover:scale-100"
                 >
                   {isLoadingNext6 ? (
                     <>
@@ -248,13 +248,13 @@ function SearchDisplay() {
         {showNext6 && next6Movies.length > 0 && (
           <div className="mb-12">
             <div className="flex items-center justify-center gap-3 mb-8">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+              <div className="h-px flex-1 bg-linear-to-r from-transparent via-purple-500/50 to-transparent"></div>
               <h2 className="text-2xl md:text-3xl font-bold text-center">
-                <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
                   More Recommendations (7-12)
                 </span>
               </h2>
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-pink-500/50 to-transparent"></div>
+              <div className="h-px flex-1 bg-linear-to-r from-transparent via-pink-500/50 to-transparent"></div>
             </div>
             
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6">
