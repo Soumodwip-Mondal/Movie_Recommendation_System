@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 import requests
 import time
+from typing import List, Optional
 from app.database.database import movie_data
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -33,6 +34,74 @@ adapter = HTTPAdapter(
 )
 session.mount("https://", adapter)
 session.mount("http://", adapter)
+
+def _tmdb_search_movie_id_by_name(name: str) -> Optional[int]:
+    """Find a TMDB movie ID for a given title using the Search API.
+
+    Returns the most popular match or None if not found / API failure.
+    """
+    if not name or not name.strip():
+        return None
+
+    search_url = "https://api.themoviedb.org/3/search/movie"
+    params = {
+        "api_key": tmdb_api_key,
+        "query": name.strip(),
+        "page": 1,
+        "include_adult": False,
+        "language": "en-US",
+    }
+    try:
+        resp = session.get(search_url, params=params, timeout=10)
+        if resp.status_code != 200:
+            print(f"[TMDB] search_movie_id_by_name error {resp.status_code} for {name}")
+            return None
+        data = resp.json()
+        results = data.get("results", [])
+        if not results:
+            return None
+        # Choose the most popular result as the best match
+        results.sort(key=lambda x: x.get("popularity", 0), reverse=True)
+        return results[0].get("id")
+    except requests.exceptions.RequestException as exc:
+        print(f"[TMDB] search_movie_id_by_name request failed for {name}: {exc}")
+        return None
+    except Exception as exc:
+        print(f"[TMDB] unexpected error in search_movie_id_by_name for {name}: {exc}")
+        return None
+
+
+def _tmdb_similar_movies_by_name(name: str, start: int, end: int) -> List[dict]:
+    """Get similar movies from TMDB for a given title.
+
+    This is used as a fallback when the local recommendation model is not
+    available or cannot find the movie. Returns a (possibly empty) list of
+    TMDB movie dicts sliced from [start:end].
+    """
+    movie_id = _tmdb_search_movie_id_by_name(name)
+    if not movie_id:
+        return []
+
+    similar_url = f"https://api.themoviedb.org/3/movie/{movie_id}/similar"
+    params = {
+        "api_key": tmdb_api_key,
+        "page": 1,
+        "language": "en-US",
+    }
+    try:
+        resp = session.get(similar_url, params=params, timeout=10)
+        if resp.status_code != 200:
+            print(f"[TMDB] similar_movies error {resp.status_code} for id={movie_id} ({name})")
+            return []
+        data = resp.json()
+        results = data.get("results", [])
+        return results[start:end]
+    except requests.exceptions.RequestException as exc:
+        print(f"[TMDB] similar_movies request failed for id={movie_id} ({name}): {exc}")
+        return []
+    except Exception as exc:
+        print(f"[TMDB] unexpected error in similar_movies for id={movie_id} ({name}): {exc}")
+        return []
 
 
 # Helper function with improved error handling
@@ -80,16 +149,6 @@ def fetch_movie_from_tmdb(movie_id: int, retries: int = 3, delay: float = 0.5):
 
 
 def fetch_multiple_movies(movie_ids: list, rate_limit_delay: float = 0.1):
-    """
-    Fetch multiple movies with rate limiting to avoid overwhelming the API.
-    
-    Args:
-        movie_ids: List of TMDB movie IDs
-        rate_limit_delay: Delay between consecutive requests (seconds)
-    
-    Returns:
-        List of movie details (with placeholders for failed fetches)
-    """
     movie_details = []
     
     for i, movie_id in enumerate(movie_ids):
@@ -131,20 +190,30 @@ def get_random_sample():
         raise HTTPException(status_code=500, detail="Internal server error while fetching recommendations")
 
 
-# 🎬 Top 6 similar movies
+# Top 6 similar movies
 @recommendation_router.get("/top_6")
 def get_top_6(name: str):
     """Get top 6 similar movies based on movie name."""
     try:
         movie_list = recommand_top_6(name)  
         
+        # If the local recommendation model returns an error, fall back to TMDB
+        # "similar" API so the endpoint still works.
         if isinstance(movie_list, dict) and "error" in movie_list:
-            raise HTTPException(status_code=404, detail=movie_list["error"])
+            print(f"[RECO] top_6 model error for '{name}': {movie_list['error']}. Falling back to TMDB similar API.")
+            fallback_movies = _tmdb_similar_movies_by_name(name, 0, 6)
+            if not fallback_movies:
+                raise HTTPException(status_code=404, detail=movie_list["error"])
+            return {"movies": fallback_movies}
         
-        movie_details = fetch_multiple_movies(movie_list, rate_limit_delay=0.1)
+        movie_details = fetch_multiple_movies(movie_list, rate_limit_delay=0.1)#type:ignore
         
         if not movie_details:
-            raise HTTPException(status_code=404, detail="No recommended movies found")
+            # As a secondary fallback, try TMDB similar
+            fallback_movies = _tmdb_similar_movies_by_name(name, 0, 6)
+            if not fallback_movies:
+                raise HTTPException(status_code=404, detail="No recommended movies found")
+            return {"movies": fallback_movies}
         
         return {"movies": movie_details}
     except HTTPException:
@@ -161,13 +230,22 @@ def get_top_6_to_12(name: str):
     try:
         movie_list = recommand_top_7_to_12(name)
         
+        # "similar" API so the endpoint still works.
         if isinstance(movie_list, dict) and "error" in movie_list:
-            raise HTTPException(status_code=404, detail=movie_list["error"])
+            print(f"[RECO] top_6_to_12 model error for '{name}': {movie_list['error']}. Falling back to TMDB similar API.")
+            fallback_movies = _tmdb_similar_movies_by_name(name, 6, 12)
+            if not fallback_movies:
+                raise HTTPException(status_code=404, detail=movie_list["error"])
+            return {"movies": fallback_movies}
         
-        movie_details = fetch_multiple_movies(movie_list, rate_limit_delay=0.1)
+        movie_details = fetch_multiple_movies(movie_list, rate_limit_delay=0.1)#type:ignore
         
         if not movie_details:
-            raise HTTPException(status_code=404, detail="No recommended movies found")
+            # As a secondary fallback, try TMDB similar
+            fallback_movies = _tmdb_similar_movies_by_name(name, 6, 12)
+            if not fallback_movies:
+                raise HTTPException(status_code=404, detail="No recommended movies found")
+            return {"movies": fallback_movies}
         
         return {"movies": movie_details}
     except HTTPException:
@@ -241,8 +319,8 @@ def search_movies(query: str):
             raise HTTPException(status_code=response.status_code, detail="TMDB API error")
             
     except requests.exceptions.RequestException as e:
-        print(f"❌ Search request error: {e}")
+        print(f"Search request error: {e}")
         raise HTTPException(status_code=500, detail="Search request failed")
     except Exception as e:
-        print(f"❌ Unexpected search error: {e}")
+        print(f"Unexpected search error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error during search")

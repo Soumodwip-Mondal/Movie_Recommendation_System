@@ -138,7 +138,7 @@ function SearchPage() {
   const otherMovies = (movies || []).filter(m => !recommendedIds.has(m.id))
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-gray-900 via-gray-900 to-black text-white px-6 md:px-16 py-10">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-black text-white px-6 md:px-16 pt-32 pb-10">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-10">
         <h1 className="text-4xl font-black mb-6">Search Movies</h1>
@@ -184,13 +184,13 @@ function SearchPage() {
             {/* Recommendations sections */}
             <div>
               <div className="flex items-center justify-center gap-3 mb-6">
-                <div className="h-px flex-1 bg-linear-to-r from-transparent via-red-500/50 to-transparent"></div>
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-500/50 to-transparent"></div>
                 <h2 className="text-2xl md:text-3xl font-bold text-center">
-                  <span className="bg-linear-to-r from-red-500 to-purple-500 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-red-500 to-purple-500 bg-clip-text text-transparent">
                     Recommendations{seedName ? ` for "${seedName}"` : ''}
                   </span>
                 </h2>
-                <div className="h-px flex-1 bg-linear-to-r from-transparent via-purple-500/50 to-transparent"></div>
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
               </div>
 
               {loadingReco ? (

@@ -1,4 +1,3 @@
-// src/components/ui/SearchBar.jsx
 import React, { useState, useEffect, useRef } from 'react'
 import { Search, X, Loader2, Film } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -36,7 +35,7 @@ function SearchBar({ onSearch, onMovieSelect, placeholder }) {
     if (searchTerm.trim().length >= 2) {
       debounceTimerRef.current = setTimeout(() => {
         setDebouncedTerm(searchTerm.trim())
-      }, 400) // Wait 400ms after user stops typing
+      }, 400)
     } else {
       setDebouncedTerm('')
       setResults([])
@@ -137,7 +136,7 @@ function SearchBar({ onSearch, onMovieSelect, placeholder }) {
   }
 
   return (
-    <div ref={searchBarRef} className="w-full max-w-2xl mx-auto">
+    <div ref={searchBarRef} className="w-full max-w-2xl mx-auto relative z-[70]">
       <div className={`relative flex items-center transition-all duration-300 ${
         isFocused ? 'scale-105' : 'scale-100'
       }`}>
@@ -194,9 +193,9 @@ function SearchBar({ onSearch, onMovieSelect, placeholder }) {
         </button>
       </div>
 
-      {/* Search Results Dropdown */}
+      {/* Search Results Dropdown - YouTube style overlay with HIGH z-index */}
       {isFocused && searchTerm.trim().length >= 2 && (
-        <div className="mt-3 bg-gray-800 rounded-xl shadow-2xl overflow-hidden animate-in fade-in-50 duration-200 border border-gray-700">
+        <div className="absolute left-0 right-0 top-full mt-2 bg-gray-800/98 backdrop-blur-xl rounded-xl shadow-2xl overflow-hidden animate-in fade-in-50 duration-200 border border-gray-700 max-h-[70vh] overflow-y-auto z-[100]">
           {searching ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="animate-spin text-red-600 mr-2" size={20} />
@@ -255,7 +254,7 @@ function SearchBar({ onSearch, onMovieSelect, placeholder }) {
               {!onMovieSelect && (
                 <button
                   onClick={handleViewAll}
-                  className="w-full py-3 bg-linear-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold text-sm transition-all duration-200"
+                  className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold text-sm transition-all duration-200"
                 >
                   View All Results for "{searchTerm}"
                 </button>
