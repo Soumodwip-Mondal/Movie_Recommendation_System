@@ -81,8 +81,7 @@ A full-stack movie recommendation platform with personalized suggestions, user a
    uvicorn main:app --reload --host 127.0.0.1 --port 8000
    ```
 
-Backend will be available at: **http://127.0.0.1:8000**  
-API docs: **http://127.0.0.1:8000/docs**
+Backend will be available at: **[Backend](https://movie-recommendation-system-lu7n.onrender.com)**  
 
 ### Frontend Setup
 
@@ -101,14 +100,14 @@ API docs: **http://127.0.0.1:8000/docs**
    npm run dev
    ```
 
-Frontend will be available at: **http://localhost:5173**
+Frontend will be available at: **[Frontend](https://movie-recommendation-system-heoh-qounymum7.vercel.app/)**
 
 ---
 
 ## 📱 Usage
 
 ### First Visit
-1. Navigate to http://localhost:5173
+1. Navigate to "https://movie-recommendation-system-heoh-qounymum7.vercel.app/"
 2. Click **Sign Up** on the landing page
 3. Fill in name, email, password, and select favorite genres
 4. You'll be automatically logged in and redirected to home
