@@ -2,7 +2,7 @@ from app import DATABASE_URL
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config.config import Settings
-Settings=Settings()
+Settings=Settings()#type:ignore
 from app.routes.auth_route import auth_router
 from app.routes.recommendation import recommendation_router
 from app.routes.history import history_router
