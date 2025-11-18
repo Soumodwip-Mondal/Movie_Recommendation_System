@@ -15,7 +15,7 @@ app=FastAPI(
 )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['*'],
+    allow_origins=['https://movie-recommendation-system-heoh-qounymum7.vercel.app/'],
     allow_headers=['*'],
     allow_methods=['*'],
     allow_credentials=True

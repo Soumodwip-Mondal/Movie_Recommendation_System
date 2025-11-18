@@ -1,5 +1,5 @@
 
-const API_BASE = import.meta.env.VITE_API_BASE || ''
+const API_BASE = 'https://movie-recommendation-system-lu7n.onrender.com'
 
 export async function apiFetch(path, options = {}) {
   let url
