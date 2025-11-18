@@ -33,6 +33,7 @@ python-dotenv==1.1.1
 python-multipart==0.0.20
 pyyaml==6.0.3
 python-jose[cryptography]==3.3.0
+requests
 rich==14.2.0
 rich-toolkit==0.15.1
 rignore==0.7.1
