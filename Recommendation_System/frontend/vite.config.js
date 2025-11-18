@@ -10,7 +10,7 @@ export default defineConfig({
     proxy: {
       // Proxy API during dev to avoid CORS. Preserve '/api' because backend routes are prefixed with '/api'.
       '/api': {
-        target: 'http://127.0.0.1:8000',
+        target: 'https://movie-recommendation-system-lu7n.onrender.com/',
         changeOrigin: true,
         secure: false,
         // Do not rewrite; backend expects '/api/*'
